@@ -10,11 +10,9 @@ class Platform {
         this.sprite = createSprite(x, y, width, height);
         this.sprite.shapeColor = color(0, 0, 0);
         this.broken = false;
-
     }
 
     show() {
-
         if (!this.broken) {
             drawSprite(this.sprite);
         }
@@ -44,8 +42,11 @@ class Player {
     move() {
         if (keyIsDown(LEFT_ARROW)) {
             this.sprite.velocity.x = -7;
+            this.sprite.velocity.y = 5;
+            sprite.rotation = 90;
         } else if (keyIsDown(RIGHT_ARROW)) {
             this.sprite.velocity.x = 7;
+            this.sprite.velocity.y = 5;
         } else {
             this.sprite.velocity.x = 0;
         }
@@ -109,7 +110,7 @@ function setup() {
 
     for (let i = 0; i < numRows; i++) {
         for (let j = 0; j < numBrickPerRow; j++) {
-            let platform = new Platform(j * platformWidth + platformWidth / 2, i * (platformHeight + 100) + platformHeight / 2, platformWidth - 5, platformHeight);
+            let platform = new Platform(j * platformWidth + platformWidth / 2, i * (platformHeight + 100) + platformHeight / 2, platformWidth - 2, platformHeight);
             platforms.push(platform);
         }
     }
