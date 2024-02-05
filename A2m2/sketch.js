@@ -18,7 +18,7 @@ class Platform {
         if (!this.broken) {
             drawSprite(this.sprite);
         }
-        // drawSprite(this.sprite);
+
     }
     break() {
         this.broken = true;
@@ -30,23 +30,22 @@ class Player {
         this.sprite = createSprite(x, y, 40, 40);
         this.sprite.velocity.y = 0;
         this.gravity = 0.5;
-        this.lift = -80;
+        this.lift = -12.5; // -80은 매우 높은 점프 값이므로, 실제 게임 플레이에 적합한 값으로 조정할 필요가 있습니다.
         this.prevY = y;
-        this.r = red;
-        this.g = green;
-        this.b = blue;
+        // this.r, this.g, this.b 변수 및 생성자 내 색상 설정 코드를 제거
+        this.sprite.shapeColor = color(255); // 기본 색상을 흰색 또는 다른 색상으로 설정
     }
 
     applyGravity() {
         this.sprite.velocity.y += this.gravity;
-        this.sprite.velocity.y = constrain(this.sprite.velocity.y, 0, 10);
+        this.sprite.velocity.y = constrain(this.sprite.velocity.y, -Infinity, 10); // 점프 후의 상승을 허용하기 위해 최소값 변경
     }
 
     move() {
         if (keyIsDown(LEFT_ARROW)) {
-            this.sprite.velocity.x = -5;
+            this.sprite.velocity.x = -7;
         } else if (keyIsDown(RIGHT_ARROW)) {
-            this.sprite.velocity.x = 5;
+            this.sprite.velocity.x = 7;
         } else {
             this.sprite.velocity.x = 0;
         }
