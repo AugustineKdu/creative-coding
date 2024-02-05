@@ -78,212 +78,141 @@ class Player {
     }
 }
 
-function preload() {
-
-    // shelters = loadJSON('leaderboard.json');
-    img = loadImage('loadingimg.png');
-}
 function setup() {
     createCanvas(700, 900);
-    state = 'loading';
-    player = new Player(350, height - 50);
+    state = 'loading'; // 초기 상태 설정
+    player = new Player(350, height - 50); // 플레이어 초기화
 
-    //create the rgd slider 
+    // RGB 슬라이더 초기화 및 위치 설정
     rSlider = createSlider(0, 255, 255, 5);
     gSlider = createSlider(0, 255, 255, 5);
     bSlider = createSlider(0, 255, 255, 5);
-
     rSlider.position(10, 40);
     gSlider.position(10, 70);
     bSlider.position(10, 100);
-
     rSlider.hide();
     gSlider.hide();
     bSlider.hide();
-    platforms = [];
 
-    if (drawLevel1) {
-        const platformWidth = 50;
-        const platformHeight = 20;
-        const totalFloors = 15; // 아래에 1개, 위에 14층 = 총 15층
-        const numBrickPerRow = width / platformWidth;
-        const platformSpacing = 150; // 플랫폼 간의 세로 간격
-
-        // 플레이어 위로 14층의 플랫폼 생성
-        for (let i = 1; i < totalFloors; i++) { // i=1부터 시작하여 바로 아래 플랫폼을 제외한 14층을 생성
-            for (let j = 0; j < numBrickPerRow; j++) {
-                let x = j * platformWidth + platformWidth / 2;
-                let y = height - 50 - i * platformSpacing; // 플레이어의 시작점을 기준으로 플랫폼의 Y 좌표 계산
-                platforms.push(new Platform(x, y, platformWidth - 2, platformHeight));
-            }
-        }
-        // 좌우 벽 생성 - 플랫폼 높이까지 올라갈 수 있게 조정
-        let wallHeight = totalFloors * platformSpacing; // 벽의 높이를 전체 층수에 맞춰 조정
-        platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight)); // 왼쪽 벽
-        platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight)); // 오른쪽 벽
-
-        // 아래쪽 벽 생성
-        platforms.push(new Platform(width / 2, height - 5, width, 20)); // 아래쪽 벽
-
-        let topPlatformY = height - platformHeight / 2 - (totalFloors - 1) * platformSpacing; // 최상단 플랫폼의 Y 좌표 계산
-        item = createSprite(width / 2, topPlatformY - 225, 20, 20); // 아이템 위치는 최상단 플랫폼 위
-        item.shapeColor = color(255, 204, 0); // 아이템의 색상 설정, 예를 들어 노란색
-
-    } else if (drawLevel2) {
-        const platformWidth = 50;
-        const platformHeight = 20;
-        const totalFloors = 3; // 아래에 1개, 위에 14층 = 총 15층
-        const numBrickPerRow = width / platformWidth;
-        const platformSpacing = 150; // 플랫폼 간의 세로 간격
-
-        // 플레이어 위로 14층의 플랫폼 생성
-        for (let i = 1; i < totalFloors; i++) { // i=1부터 시작하여 바로 아래 플랫폼을 제외한 14층을 생성
-            for (let j = 0; j < numBrickPerRow; j++) {
-                let x = j * platformWidth + platformWidth / 2;
-                let y = height - 50 - i * platformSpacing; // 플레이어의 시작점을 기준으로 플랫폼의 Y 좌표 계산
-                platforms.push(new Platform(x, y, platformWidth - 2, platformHeight));
-            }
-        }
-        // 좌우 벽 생성 - 플랫폼 높이까지 올라갈 수 있게 조정
-        let wallHeight = totalFloors * platformSpacing; // 벽의 높이를 전체 층수에 맞춰 조정
-        platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight)); // 왼쪽 벽
-        platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight)); // 오른쪽 벽
-
-        // 아래쪽 벽 생성
-        platforms.push(new Platform(width / 2, height - 5, width, 20)); // 아래쪽 벽
-
-        let topPlatformY = height - platformHeight / 2 - (totalFloors - 1) * platformSpacing; // 최상단 플랫폼의 Y 좌표 계산
-        item = createSprite(width / 2, topPlatformY - 225, 20, 20); // 아이템 위치는 최상단 플랫폼 위
-        item.shapeColor = color(255, 204, 0); // 아이템의 색상 설정, 예를 들어 노란색
-    }
+    // 최초로 메인 메뉴로 상태 전환
+    changeState('main');
 }
-
-
 
 function draw() {
     background(220);
 
     switch (state) {
-        case 'loading':
-            drawLoadingScreen();
-            break;
         case 'main':
             drawMainMenu();
             break;
         case 'level1':
-            rSlider.hide();
-            gSlider.hide();
-            bSlider.hide();
             drawLevel1();
-
             break;
         case 'level2':
-            rSlider.hide();
-            gSlider.hide();
-            bSlider.hide();
             drawLevel2();
-
             break;
-        case 'leaderboard':
-            drawboard();
+        // 여기에 더 많은 상태 및 그에 해당하는 그리기 로직을 추가할 수 있습니다.
     }
-
-}
-
-function drawLoadingScreen() {
-    // 로딩 화면을 그리는 코드
-    image(img, 0, 0, width, height);
-    textSize(42);
-    textAlign(CENTER);
-    text('Loading...', width / 2, height / 2);
-}
-
-function drawMainMenu() {
-    // 메인 메뉴 화면을 그리는 코드
-    textSize(32);
-    textAlign(CENTER);
-    text('Main Menu', width / 2, height / 2 - 50);
-    text('Ice Climber Game', width / 2, height / 2 - 20);
-
-
-    rSlider.show();
-    gSlider.show();
-    bSlider.show();
-}
-function drawLevel1() {
-    background(220);
-    text('Ice Game Level 1', width / -50, height / 2 - 20);
-
-
-    let yOffset = height / 2 - player.sprite.position.y; // 플레이어가 화면 중앙에 위치하도록 yOffset 계산
-    translate(0, yOffset); // 화면 스크롤
-    // 플레이어와 플랫폼 업데이트 및 표시
-    player.applyGravity();
-    player.move();
-    player.jump();
-    player.collide(platforms);
-    player.show();
-
-    for (let platform of platforms) {
-        platform.show();
-    }
-    // 플레이어와 아이템의 충돌 검사
-    if (player.sprite.overlap(item)) {
-        // 게임 종료 또는 다음 레벨로의 전환 로직
-        // console.log("Item collected! Level Complete.");
-        noLoop(); // 게임 루프 중지
-        // 여기서 게임 상태를 변경하거나, 다음 레벨로 넘어가는 로직을 구현할 수 있음
-
-    }
-    drawSprites();
-}
-function drawLevel2() {
-    // 레벨 2을 그리는 코드
-    text('Ice Climber Game level 2', width / 2 - 50, height / 2 - 20);
-
-    let yOffset = height / 2 - player.sprite.position.y; // 플레이어가 화면 중앙에 위치하도록 yOffset 계산
-    translate(0, yOffset); // 화면 스크롤
-    // 플레이어와 플랫폼 업데이트 및 표시
-    player.applyGravity();
-    player.move();
-    player.jump();
-    player.collide(platforms);
-    player.show();
-
-    for (let platform of platforms) {
-        platform.show();
-    }
-    // 플레이어와 아이템의 충돌 검사
-    if (player.sprite.overlap(item)) {
-        // 게임 종료 또는 다음 레벨로의 전환 로직
-        // console.log("Item collected! Level Complete.");
-        noLoop(); // 게임 루프 중지
-        // 여기서 게임 상태를 변경하거나, 다음 레벨로 넘어가는 로직을 구현할 수 있음
-        if (state === 'level1') {
-            state = 'level2'; // 혹은 'level2'
-        }
-    }
-    drawSprites();
-}
-
-function drawboard() {
-    text('Ice  Game board ', width / 2, height / 2 - 20);
 }
 
 function mousePressed() {
-    // 마우스 클릭으로 상태 변경 (예시)
-    if (state === 'loading') {
-        state = 'main';
-
+    // 메인 메뉴에서 레벨 선택을 처리하는 로직
+    if (state === 'main') {
+        changeState('level2');
     }
-    else if (state === 'main') {
-        state = 'level2'; // 혹은 'level2'
+    // 레벨 내에서의 상호작용은 각 drawLevel 함수 내에서 처리할 수 있습니다.
+}
 
+function changeState(newState) {
+    state = newState;
+    switch (state) {
+        case 'level1':
+            initializeLevel1();
+            break;
+        case 'level2':
+            initializeLevel2();
+            break;
+        // 추가적인 레벨 초기화를 여기에 구현할 수 있습니다.
     }
-    // else if (state === 'level1') {
-    //     state = 'level2'; // 혹은 'level2'
-    // }
-    // else if (state === 'level2') {
-    //     state = 'leaderboard';
-    // }
+}
+
+function initializeLevel1() {
+    platforms = []; // 기존 플랫폼 초기화
+    createPlatforms(15, 200); // 레벨 1을 위한 플랫폼 생성
+    createItem(height - (15 * 150 + 225)); // 레벨 1의 아이템 생성
+}
+
+function initializeLevel2() {
+    platforms = []; // 기존 플랫폼 초기화
+    createPlatforms(3, 400); // 레벨 2를 위한 플랫폼 생성
+    createItem(height - (3 * 150 + 225)); // 레벨 2의 아이템 생성
+}
+
+function createPlatforms(totalFloors, platformSpacing) {
+    const platformWidth = 50;
+    const platformHeight = 20;
+    const numBrickPerRow = width / platformWidth;
+    // const platformSpacing = 150;
+
+    for (let i = 1; i < totalFloors; i++) {
+        for (let j = 0; j < numBrickPerRow; j++) {
+            let x = j * platformWidth + platformWidth / 2;
+            let y = height - 50 - i * platformSpacing;
+            platforms.push(new Platform(x, y, platformWidth - 2, platformHeight));
+        }
+    }
+
+    // 벽 생성
+    let wallHeight = totalFloors * platformSpacing + 50; // 플랫폼 위에 조금 더 올라갈 수 있게
+    platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight)); // 왼쪽 벽
+    platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight)); // 오른쪽 벽
+    platforms.push(new Platform(width / 2, height - 5, width, 20)); // 아래쪽 벽
+}
+
+function createItem(topPlatformY) {
+    item = createSprite(width / 2, topPlatformY, 20, 20);
+    item.shapeColor = color(255, 204, 0);
+}
+
+function drawLevel1() {
+    // 레벨 1 그리기 로직
+    handleLevelDraw();
+}
+
+function drawLevel2() {
+    // 레벨 2 그리기 로직
+    handleLevelDraw();
+}
+
+function handleLevelDraw() {
+    let yOffset = height / 2 - player.sprite.position.y;
+    translate(0, yOffset); // 화면 스크롤
+
+    // 플레이어와 플랫폼 업데이트 및 표시
+    player.applyGravity();
+    player.move();
+    player.jump();
+    player.collide(platforms);
+    player.show();
+
+    for (let platform of platforms) {
+        platform.show();
+    }
+
+    // 아이템과의 충돌 검사
+    if (player.sprite.overlap(item)) {
+        console.log("Item collected! Level Complete.");
+        noLoop(); // 또는 다음 레벨로 전환
+    }
+
+    drawSprites();
+}
+
+function drawMainMenu() {
+    textSize(32);
+    textAlign(CENTER);
+    text('Main Menu: Click to Start', width / 2, height / 2);
+    rSlider.show();
+    gSlider.show();
+    bSlider.show();
 }
