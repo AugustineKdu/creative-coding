@@ -5,9 +5,19 @@ let state;
 let playButton;
 let sprite;
 let item;
+let video;
 
 let loadingScreenTimeout;
 
+let sound1, sound2, sound3;
+
+function preload() {
+    sound1 = loadSound('assert/sound1brake.mp3');
+    sound2 = loadSound('assert/sound2jump.mp3');
+    sound3 = loadSound('assert/sound3win.mp3');
+
+    // video = createVideo('video.mp4');
+}
 
 class Platform {
     constructor(x, y, width, height, moving = false) {
@@ -141,15 +151,22 @@ function setup() {
 
     // 버튼 1 생성
     button1 = createButton('Game 1');
-    button1.position(width / 2 - 100, height / 2 + 20);
+    button1.position(width / 2 + 20, height / 2 + 200);
     button1.mousePressed(() => startGame(1));
+    button1.style('font-size', '18px'); // 텍스트 사이즈 조절
+    button1.style('padding', '10px 20px'); // 패딩 조절 (높이와 너비)
+    button1.style('border-radius', '5px'); // 테두리 둥글게 설정
     button1.hide();
 
     // 버튼 2 생성
     button2 = createButton('Game 2');
-    button2.position(width / 2 + 50, height / 2 + 20);
+    button2.position(width / 2 + 250, height / 2 + 200);
     button2.mousePressed(() => startGame(2));
+    button2.style('font-size', '18px'); // 텍스트 사이즈 조절
+    button2.style('padding', '10px 20px'); // 패딩 조절 (높이와 너비)
+    button2.style('border-radius', '5px'); // 테두리 둥글게 설정
     button2.hide();
+
 
     // 최초로 메인 메뉴로 상태 전환
     changeState('main');
@@ -162,6 +179,7 @@ function draw() {
     switch (state) {
         case 'main':
             drawMainMenu();
+
             break;
         case 'loadingPage':
             drawLoadingScreen();
@@ -170,6 +188,8 @@ function draw() {
             bSlider.hide();
             button1.hide();
             button2.hide();
+
+
             break;
         case 'level1':
             drawLevel1();
@@ -178,6 +198,8 @@ function draw() {
             bSlider.hide();
             button1.hide();
             button2.hide();
+
+
             break;
         case 'level2':
             drawLevel2();
@@ -186,28 +208,28 @@ function draw() {
             bSlider.hide();
             button1.hide();
             button2.hide();
+
+
             break;
         // 여기에 더 많은 상태 및 그에 해당하는 그리기 로직을 추가할 수 있습니다.
     }
 }
 
-
-
 function changeState(newState) {
     state = newState;
     switch (state) {
         case 'main':
-            // 메인 메뉴 관련 UI 표시
-            button1.show();
-            button2.show();
+            // // 메인 메뉴 관련 UI 표시
+            // button1.show();
+            // button2.show();
             break;
         case 'loadingPage':
             // 로딩 화면 준비, UI 숨기기
-            rSlider.hide();
-            gSlider.hide();
-            bSlider.hide();
-            button1.hide();
-            button2.hide();
+            // rSlider.hide();
+            // gSlider.hide();
+            // bSlider.hide();
+            // button1.hide();
+            // button2.hide();
             break;
         case 'level1':
             initializeLevel1();
@@ -234,7 +256,7 @@ function drawLoadingScreen() {
 function drawMainMenu() {
     textSize(50);
     textAlign(CENTER);
-    text('Main Menu: Click to Start', width / 2, height / 2 + 200);
+    text('Main Menu: Click to Start', width / 2, 100);
     rSlider.show();
     gSlider.show();
     bSlider.show();
@@ -257,8 +279,6 @@ function startGame(gameNumber) {
         }
     }, 5000); // 5초 후
 }
-
-
 
 function initializeLevel1() {
     platforms = []; // 기존 플랫폼 초기화

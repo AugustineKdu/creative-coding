@@ -1,0 +1,53 @@
+{
+	"name": "p5play",
+	"author": "quinton-ashley <info@p5play.org>",
+	"bugs": {
+		"url": "https://github.com/quinton-ashley/p5play/issues"
+	},
+	"contributors": [
+		"Paolo Pedercini <info@molleindustria.it>"
+	],
+	"description": "A JavaScript game engine that uses p5.js for graphics and Box2D for physics.",
+	"funding": [
+		{
+			"type": "patreon",
+			"url": "https://www.patreon.com/p5play"
+		},
+		{
+			"type": "github",
+			"url": "https://github.com/sponsors/quinton-ashley"
+		}
+	],
+	"keywords": [
+		"p5.play",
+		"p5.js",
+		"p5js",
+		"p5",
+		"q5",
+		"box2d",
+		"physics",
+		"physics engine",
+		"physics simulation",
+		"game engine",
+		"games",
+		"animation",
+		"user input",
+		"controller",
+		"gamepad"
+	],
+	"license": "AGPL-3.0",
+	"main": "p5play.js",
+	"homepage": "https://p5play.org",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/quinton-ashley/p5play.git"
+	},
+	"scripts": {
+		"min": "minify p5play.js > p5play.min.js && cp p5play.min.js ../../web/p5play-web/v3/p5play.min.js",
+		"v": "npm version patch --force",
+		"V": "npm version minor --force",
+		"version": "git add -A",
+		"postversion": "git push"
+	},
+	"version": "3.19.6"
+}
