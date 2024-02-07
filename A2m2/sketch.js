@@ -9,6 +9,9 @@ let video;
 let button1;
 let button2;
 
+let canvas;
+
+
 let loadingScreenTimeout;
 
 let sound1, sound2, sound3;
@@ -28,30 +31,27 @@ class Platform {
         this.sprite = createSprite(x, y, width, height);
         this.sprite.shapeColor = color(219, 241, 253);
         this.broken = false;
-        this.moving = moving; // 플랫폼이 움직이는지 여부
-        this.moveDirection = 1; // 움직임 방향 (1: 오른쪽, -1: 왼쪽)
-        this.moveSpeed = 2; // 움직임 속도
+        this.moving = moving;
+        this.moveDirection = 1;
+        this.moveSpeed = 2;
     }
 
     update() {
         if (this.moving) {
             this.sprite.position.x += this.moveSpeed * this.moveDirection;
-            // 화면 경계에서 방향 전환
             if (this.sprite.position.x > width - this.sprite.width / 2 || this.sprite.position.x < this.sprite.width / 2) {
                 this.moveDirection *= -1;
             }
         }
-
     }
 
     show() {
         if (!this.broken) {
             drawSprite(this.sprite);
         }
-
     }
-    break() {
 
+    break() {
         if (!this.moving) {
             this.broken = true;
             this.sprite.remove();
@@ -59,6 +59,7 @@ class Platform {
         }
     }
 }
+
 class Player {
     constructor(x, y) {
         this.sprite = createSprite(x, y, 40, 40);
@@ -67,27 +68,25 @@ class Player {
         this.lift = -20.5;
         this.prevY = y;
 
-        this.sprite.shapeColor = color(this.r, this.g, this.b); // 기본 색상을 흰색 또는 다른 색상으로 설정
+        this.sprite.shapeColor = color(this.r, this.g, this.b);
         this.onMovingPlatform = false;
     }
 
     applyGravity() {
         this.sprite.velocity.y += this.gravity;
-        this.sprite.velocity.y = constrain(this.sprite.velocity.y, -Infinity, 10); // 점프 후의 상승을 허용하기 위해 최소값 변경
+        this.sprite.velocity.y = constrain(this.sprite.velocity.y, -Infinity, 10);
     }
 
     move() {
         if (keyIsDown(LEFT_ARROW)) {
             this.sprite.velocity.x = -7;
             this.sprite.velocity.y = 5;
-
         } else if (keyIsDown(RIGHT_ARROW)) {
             this.sprite.velocity.x = 7;
             this.sprite.velocity.y = 5;
         } else {
-            // 마찰이 적용되는 부분
             if (this.onMovingPlatform) {
-                this.sprite.velocity.x *= 0.1; // 마찰 계수 적용
+                this.sprite.velocity.x *= 0.1;
             } else {
                 this.sprite.velocity.x = 0;
             }
@@ -104,22 +103,21 @@ class Player {
     collide(platforms) {
         for (let platform of platforms) {
             if (this.sprite.collide(platform.sprite)) {
-                // 아래에서 위로 점프하는 충돌 감지
                 if (this.sprite.velocity.y < 0 && this.prevY > platform.sprite.position.y) {
                     platform.break();
                 }
             }
         }
-        this.prevY = this.sprite.position.y; // 현재 프레임의 위치를 이전 위치로 업데이트
+        this.prevY = this.sprite.position.y;
     }
 
     show() {
-
         fill(this.r, this.g, this.b);
         drawSprite(this.sprite);
     }
+
     checkOnMovingPlatform(platforms) {
-        this.onMovingPlatform = false; // 기본적으로 false로 설정
+        this.onMovingPlatform = false;
         platforms.forEach(platform => {
             if (platform.moving && this.sprite.collide(platform.sprite)) {
                 this.onMovingPlatform = true;
@@ -131,15 +129,18 @@ class Player {
         this.applyGravity();
         this.move();
         this.jump();
-        // 필요한 경우 여기에 다른 업데이트 로직 추가
     }
-
 }
 
 function setup() {
-    createCanvas(700, 900);
-    state = 'loading'; // 초기 상태 설정
-    player = new Player(350, height - 50); // 플레이어 초기화
+
+    canvas = createCanvas(700, 900);
+    let canvasX = (windowWidth - width) / 2;
+    let canvasY = (windowHeight - height) / 2;
+    canvas.position(canvasX, canvasY);
+
+    state = 'loading';
+    player = new Player(350, height - 50);
     rSlider = createSlider(0, 255, 255, 5);
     gSlider = createSlider(0, 255, 255, 5);
     bSlider = createSlider(0, 255, 255, 5);
@@ -147,31 +148,34 @@ function setup() {
     gSlider.position(700, 770);
     bSlider.position(700, 800);
 
+    button1 = createButton('Level 1');
 
-    // 버튼 1 생성
-    button1 = createButton('Game 1');
-    button1.position(width / 2 + 80, height / 2 + 150);
     button1.mousePressed(() => startGame(1));
-    button1.style('font-size', '18px'); // 텍스트 사이즈 조절
-    button1.style('padding', '10px 20px'); // 패딩 조절 (높이와 너비)
-    button1.style('border-radius', '5px'); // 테두리 둥글게 설정
+    button1.style('font-size', '18px');
+    button1.style('padding', '10px 20px');
+    button1.style('border-radius', '5px');
 
+    button2 = createButton('Level 2');
 
-    // 버튼 2 생성
-    button2 = createButton('Game 2');
-    button2.position(width / 2 + 320, height / 2 + 150);
     button2.mousePressed(() => startGame(2));
-    button2.style('font-size', '18px'); // 텍스트 사이즈 조절
-    button2.style('padding', '10px 20px'); // 패딩 조절 (높이와 너비)
-    button2.style('border-radius', '5px'); // 테두리 둥글게 설정
-    image(video1, 700, 450, width / 2, height / 2);
-    // 최초로 메인 메뉴로 상태 전환
+    button2.style('font-size', '18px');
+    button2.style('padding', '10px 20px');
+    button2.style('border-radius', '5px');
+    // 버튼 위치 조정
+    button1.position(canvasX + 200, canvasY + 200);
+    button2.position(canvasX + 400, canvasY + 200);
+
+    // image(video1, 700, 900, canvasX + 400, canvasY + 200);
+    video1 = createVideo(['assert/video.mp4']);
+    video1.position(canvasX + 900, canvasY + 100);
+    video1.size(400, 300);
+    video1.hide();
+
     changeState('main');
 }
 
 function draw() {
     background(0);
-
 
     switch (state) {
         case 'main':
@@ -188,7 +192,6 @@ function draw() {
             break;
         case 'board':
             drawboardscreen();
-
     }
 }
 
@@ -199,18 +202,19 @@ function changeState(newState) {
             drawMainMenu();
             break;
         case 'loadingPage':
-            // 로딩 화면 준비, UI 숨기기
             hideUI();
             break;
         case 'level1':
-            initializeLevel1(); hideUI()
+            initializeLevel1();
+            hideUI();
             break;
         case 'level2':
-            initializeLevel2(); hideUI()
+            initializeLevel2();
+            hideUI();
             break;
-        // 추가 상태 처리
     }
 }
+
 function drawLoadingScreen() {
     image(img, 0, 0, width, height);
     textSize(32);
@@ -218,12 +222,11 @@ function drawLoadingScreen() {
     textAlign(CENTER, CENTER);
     text('Loading...', width / 2, height / 2 - 20);
     textSize(20);
-    text("Gameplay Instructions: Use ARROWS to move, SPACE for action", width / 2, height / 2 + 20);
+    text("Game play Instructions: Use <= =>ARROWS to move, Up Arrows for Jump", width / 2, height / 2 + 400);
+
 }
 
-
 function hideUI() {
-    // UI 요소 숨기기
     rSlider.hide();
     gSlider.hide();
     bSlider.hide();
@@ -231,72 +234,60 @@ function hideUI() {
     button2.hide();
     video1.hide();
     video1.stop();
-
 }
+
 function drawMainMenu() {
     image(img2, 0, 0, width, height);
     fill(255);
     textSize(50);
     textAlign(CENTER);
-    text('Main Menu: Click to Start', width / 2, 150);
+    text('Welcome to Ice Crime Game', width / 2, 130);
+    text('Main Menu: Click to Start', width / 2, 180);
 
-
-
-
+    // image(video1, 700, 900, width / 2, height / 2);
     video1.play();
     video1.loop();
-
-
 }
+
 function startGame(gameNumber) {
-    // 버튼 숨기기
-    hideUI()
-    // 로딩 화면으로 상태 변경
+    hideUI();
     changeState('loadingPage');
-    // 로딩 화면 후, 선택된 게임 레벨로 전환
-    clearTimeout(loadingScreenTimeout); // 이전에 설정된 타이머가 있다면 취소
+    clearTimeout(loadingScreenTimeout);
     loadingScreenTimeout = setTimeout(() => {
         if (gameNumber === 1) {
             changeState('level1');
         } else if (gameNumber === 2) {
             changeState('level2');
         }
-    }, 5000); // 5초 후
-
+    }, 5000);
 }
 
 function initializeLevel1() {
     background(255);
-    platforms = []; // 기존 플랫폼 초기화
-    createPlatforms(10, 200); // 레벨 1을 위한 플랫폼 생성
-    createItem(height - (10 * 200 + 225)); // 레벨 1의 아이템 생성
+    platforms = [];
+    createPlatforms(10, 170);
+    createItem(height - (10 * 170 + 225));
 }
+
 function initializeLevel2() {
     background(255);
     platforms = [];
-    createPlatforms(10, 200);
-    createItem(height - (10 * 200 + 225));
+    createPlatforms(15, 200);
+    createItem(height - (15 * 200 + 225));
 }
 
 function createPlatforms(totalFloors, platformSpacing) {
-
     const platformWidth = 50;
     const platformHeight = 20;
-    // 화면에 플랫폼이 몇 개 들어갈 수 있는지 계산합니다.
     const numBrickPerRow = width / platformWidth;
-    // 홀수 층의 움직이는 플랫폼을 중앙에 위치시키기 위한 계산
-    const movingPlatformPosition = Math.floor(numBrickPerRow / 2) - 1; // 중앙 기준으로 왼쪽에 위치
-
+    const movingPlatformPosition = Math.floor(numBrickPerRow / 2) - 1;
 
     for (let i = 1; i <= totalFloors; i++) {
-        // 홀수 층에만 움직이는 플랫폼을 생성합니다.
         if (i % 2 === 1) {
-            // 중앙에 움직이는 큰 플랫폼 하나를 생성합니다.
             let x = movingPlatformPosition * platformWidth + platformWidth * 1.5;
             let y = height - 50 - i * platformSpacing;
-            platforms.push(new Platform(x, y, platformWidth * 3 - 2, platformHeight, true)); // 움직이는 플랫폼
+            platforms.push(new Platform(x, y, platformWidth * 3 - 2, platformHeight, true));
         } else {
-            // 짝수 층에는 정적인 플랫폼을 생성합니다.
             for (let j = 0; j < numBrickPerRow; j++) {
                 let x = j * platformWidth + platformWidth / 2;
                 let y = height - 50 - i * platformSpacing;
@@ -304,14 +295,11 @@ function createPlatforms(totalFloors, platformSpacing) {
             }
         }
     }
-    // 벽 생성
-    let wallHeight = totalFloors * platformSpacing + 50; // 플랫폼 위에 조금 더 올라갈 수 있게
-    platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight)); // 왼쪽 벽
-    platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight)); // 오른쪽 벽
 
-
-    platforms.push(new Platform(width / 2, height - 25, width, 50)); // 아래쪽 벽
-
+    let wallHeight = totalFloors * platformSpacing + 50;
+    platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight));
+    platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight));
+    platforms.push(new Platform(width / 2, height - 25, width, 50));
 }
 
 function createItem(topPlatformY) {
@@ -320,23 +308,17 @@ function createItem(topPlatformY) {
 }
 
 function drawLevel1() {
-    // 레벨 1 그리기 로직
     handleLevelDraw();
 }
 
 function drawLevel2() {
-    // 레벨 2 그리기 로직
     handleLevelDraw();
-
 }
 
 function handleLevelDraw() {
     let yOffset = height / 2 - player.sprite.position.y;
-    translate(0, yOffset); // 화면 스크롤
+    translate(0, yOffset);
 
-
-
-    // 플레이어와 플랫폼 업데이트 및 표시
     player.applyGravity();
     player.move();
     player.jump();
@@ -349,19 +331,16 @@ function handleLevelDraw() {
         platform.show();
     }
 
-    // 아이템과의 충돌 검사
     if (player.sprite.overlap(item)) {
-
-        //testing method
         console.log("Item collected! Level Complete.");
         sound3.play();
-        noLoop(); // 또는 다음 레벨로 전환
+        noLoop();
         drawLoadingScreen();
     }
 
-
     drawSprites();
 }
+
 function drawboardscreen() {
 
 }
