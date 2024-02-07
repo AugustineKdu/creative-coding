@@ -18,6 +18,9 @@ let loadingScreenTimeout;
 
 let sound1, sound2, sound3;
 
+let nameInput;
+let playerName = "";
+
 function preload() {
     sound1 = loadSound('assert/sound1brake.mp3');
     sound2 = loadSound('assert/sound2jump.mp3');
@@ -181,6 +184,8 @@ function setup() {
     // 버튼 위치 조정
     button1.position(canvasX + 200, canvasY + 200);
     button2.position(canvasX + 400, canvasY + 200);
+    nameInput = createInput('');
+    nameInput.position(canvasX + 20, canvasY + 20);
 
     // image(video1, 700, 900, canvasX + 400, canvasY + 200);
     // video1 = createVideo(['assert/video.mp4']);
@@ -235,7 +240,7 @@ function changeState(newState) {
             hideUI();
             break;
         case 'congratulations':
-            // 게임 완료 시 필요한 설정
+
             hideUI();
             break;
     }
@@ -248,6 +253,7 @@ function drawLoadingScreen() {
     textAlign(CENTER, CENTER);
     text('Loading...', width / 2, height / 2 - 20);
     textSize(20);
+    text(`Welcome, ${playerName}`, width / 2, height / 2);
     text("Game play Instructions: Use <= =>ARROWS to move, Up Arrows for Jump", width / 2, height / 2 + 400);
 
 }
@@ -281,17 +287,23 @@ function drawMainMenu() {
 }
 
 function startGame(gameNumber) {
+    playerName = nameInput.value();
+    if (playerName.trim() === "") {
+        alert("Please enter your name!");
+        return;
+    }
+
+
     hideUI();
     resetGame();
     changeState('loadingPage');
     clearTimeout(loadingScreenTimeout);
     loadingScreenTimeout = setTimeout(() => {
-        if (gameNumber === 1) {
-            changeState('level1');
-        } else if (gameNumber === 2) {
-            changeState('level2');
-        }
+        changeState(gameNumber === 1 ? 'level1' : 'level2');
     }, 5000);
+
+    nameInput.hide(); // 입력 필드 숨기기
+    startButton.hide(); // 시작 버튼 숨기기
 }
 
 function initializeLevel1() {
@@ -385,7 +397,9 @@ function drawCongratulationsScreen() {
     fill(0);
     textSize(50);
     textAlign(CENTER, CENTER);
-    text('Congratulations! You won!', width / 2, height / 2 - 50);
+    text(`Congratulations, ${playerName}`, width / 2, height / 2 - 50);
+
+
     textSize(20);
     text('Returning to main menu in 10 seconds...', width / 2, height / 2 + 20);
 }
