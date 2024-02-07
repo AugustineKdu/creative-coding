@@ -1,6 +1,6 @@
 let player;
 let platforms = [];
-let rSlider, gSlider, bSlider;
+
 let state;
 let playButton;
 let sprite;
@@ -8,10 +8,12 @@ let item;
 let video;
 let button1;
 let button2;
+let fimg;
+let bimg;
 
 let canvas;
 
-
+let playerAnimation;
 let loadingScreenTimeout;
 
 let sound1, sound2, sound3;
@@ -22,14 +24,26 @@ function preload() {
     sound3 = loadSound('assert/sound3win.mp3');
     img = loadImage('assert/loadingimg.png');
     img2 = loadImage('assert/img2.jpeg');
+    pimg1 = loadImage('assert/peng1.png');
+    pimg2 = loadImage('assert/peng2.png');
+    pimg3 = loadImage('assert/peng3.png');
+    bimg = loadImage('assert/background.jpeg');
+    fimg = loadImage('assert/fimg.png');
+    winimg = loadImage('assert/win.png');
 
     video1 = createVideo('assert/video.mp4');
+
+    playerAnimation = loadAnimation(
+        'assert/peng1.png',
+        'assert/peng2.png',
+        'assert/peng3.png'
+    );
 }
 
 class Platform {
     constructor(x, y, width, height, moving = false) {
         this.sprite = createSprite(x, y, width, height);
-        this.sprite.shapeColor = color(219, 241, 253);
+        this.sprite.shapeColor = color(230, 250, 255);
         this.broken = false;
         this.moving = moving;
         this.moveDirection = 1;
@@ -63,12 +77,19 @@ class Platform {
 class Player {
     constructor(x, y) {
         this.sprite = createSprite(x, y, 40, 40);
+        this.direction = 'right';
+        // this.sprite.addImage(pimg1);
+        this.sprite.addAnimation('moving', playerAnimation);
+        this.sprite.addAnimation.frameDelay = 10;
+
+        this.sprite.scale = 0.2;
         this.sprite.velocity.y = 0;
         this.gravity = 0.5;
         this.lift = -20.5;
         this.prevY = y;
 
-        this.sprite.shapeColor = color(this.r, this.g, this.b);
+        this.sprite.shapeColor = color(219, 241, 253);
+
         this.onMovingPlatform = false;
     }
 
@@ -81,9 +102,11 @@ class Player {
         if (keyIsDown(LEFT_ARROW)) {
             this.sprite.velocity.x = -7;
             this.sprite.velocity.y = 5;
+
         } else if (keyIsDown(RIGHT_ARROW)) {
             this.sprite.velocity.x = 7;
             this.sprite.velocity.y = 5;
+
         } else {
             if (this.onMovingPlatform) {
                 this.sprite.velocity.x *= 0.1;
@@ -112,7 +135,7 @@ class Player {
     }
 
     show() {
-        fill(this.r, this.g, this.b);
+
         drawSprite(this.sprite);
     }
 
@@ -141,12 +164,6 @@ function setup() {
 
     state = 'loading';
     player = new Player(350, height - 50);
-    rSlider = createSlider(0, 255, 255, 5);
-    gSlider = createSlider(0, 255, 255, 5);
-    bSlider = createSlider(0, 255, 255, 5);
-    rSlider.position(700, 740);
-    gSlider.position(700, 770);
-    bSlider.position(700, 800);
 
     button1 = createButton('Level 1');
 
@@ -166,16 +183,17 @@ function setup() {
     button2.position(canvasX + 400, canvasY + 200);
 
     // image(video1, 700, 900, canvasX + 400, canvasY + 200);
-    video1 = createVideo(['assert/video.mp4']);
-    video1.position(canvasX + 900, canvasY + 100);
-    video1.size(400, 300);
-    video1.hide();
+    // video1 = createVideo(['assert/video.mp4']);
+    // video1.position(canvasX + 900, canvasY + 100);
+    // video1.size(400, 300);
+    // video1.hide();
 
     changeState('main');
 }
 
 function draw() {
-    background(0);
+    background(150);
+    image(bimg, 0, 0, width, height);
 
     switch (state) {
         case 'main':
@@ -192,6 +210,9 @@ function draw() {
             break;
         case 'board':
             drawboardscreen();
+        case 'congratulations':
+            drawCongratulationsScreen();
+            break;
     }
 }
 
@@ -200,6 +221,7 @@ function changeState(newState) {
     switch (state) {
         case 'main':
             drawMainMenu();
+            showUI();
             break;
         case 'loadingPage':
             hideUI();
@@ -210,6 +232,10 @@ function changeState(newState) {
             break;
         case 'level2':
             initializeLevel2();
+            hideUI();
+            break;
+        case 'congratulations':
+            // 게임 완료 시 필요한 설정
             hideUI();
             break;
     }
@@ -227,30 +253,36 @@ function drawLoadingScreen() {
 }
 
 function hideUI() {
-    rSlider.hide();
-    gSlider.hide();
-    bSlider.hide();
+
     button1.hide();
     button2.hide();
     video1.hide();
     video1.stop();
 }
+function showUI() {
+    button1.show();
+    button2.show();
+    video1.play();
+    // 필요한 다른 UI 요소들에 대해서도 show() 메서드를 호출
+}
+
 
 function drawMainMenu() {
     image(img2, 0, 0, width, height);
-    fill(255);
+    fill(175);
     textSize(50);
     textAlign(CENTER);
     text('Welcome to Ice Crime Game', width / 2, 130);
     text('Main Menu: Click to Start', width / 2, 180);
 
-    // image(video1, 700, 900, width / 2, height / 2);
+    image(video1, 700, 900, width / 2, height / 2);
     video1.play();
     video1.loop();
 }
 
 function startGame(gameNumber) {
     hideUI();
+    resetGame();
     changeState('loadingPage');
     clearTimeout(loadingScreenTimeout);
     loadingScreenTimeout = setTimeout(() => {
@@ -300,11 +332,15 @@ function createPlatforms(totalFloors, platformSpacing) {
     platforms.push(new Platform(25, height - wallHeight / 2, 50, wallHeight));
     platforms.push(new Platform(width - 25, height - wallHeight / 2, 50, wallHeight));
     platforms.push(new Platform(width / 2, height - 25, width, 50));
+    // platforms.push(new Platform(width / 2, height - 50, width, 300));
 }
 
 function createItem(topPlatformY) {
     item = createSprite(width / 2, topPlatformY, 20, 20);
-    item.shapeColor = color(255, 204, 0);
+
+    item.addImage(fimg);
+    item.scale = 0.2;
+
 }
 
 function drawLevel1() {
@@ -334,13 +370,32 @@ function handleLevelDraw() {
     if (player.sprite.overlap(item)) {
         console.log("Item collected! Level Complete.");
         sound3.play();
-        noLoop();
-        drawLoadingScreen();
+        changeState('congratulations');
+        setTimeout(() => {
+            changeState('main');
+        }, 10000);
+
     }
 
     drawSprites();
 }
+function drawCongratulationsScreen() {
+    background(0, 255, 0);
+    image(winimg, 0, 0, width, height);
+    fill(0);
+    textSize(50);
+    textAlign(CENTER, CENTER);
+    text('Congratulations! You won!', width / 2, height / 2 - 50);
+    textSize(20);
+    text('Returning to main menu in 10 seconds...', width / 2, height / 2 + 20);
+}
 
-function drawboardscreen() {
+function resetGame() {
 
+    platforms = [];
+
+    player.sprite.position.x = 350;
+    player.sprite.position.y = height - 50;
+    player.sprite.velocity.x = 0;
+    player.sprite.velocity.y = 0;
 }
